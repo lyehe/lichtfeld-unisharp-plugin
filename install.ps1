@@ -9,7 +9,7 @@
     <LFS plugins>/unisharp_plugin  -> this plugin directory
 
   The plugin vendors the upstream UniSHARP Python source at ./unisharp/.
-  Runtime assets are prepared on first load:
+  Runtime assets are prepared after selecting an image or clicking Retry:
     - UniK3D source cloned into ./UniK3D/
     - 3DGEER source cloned into ./3dgeer/ for fisheye paths
     - UniSHARP checkpoint downloaded into ./models/
@@ -87,8 +87,9 @@ Write-Host "Install complete." -ForegroundColor Green
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Launch LichtFeld Studio."
-Write-Host "  2. Wait for first-run uv sync and UniSHARP asset preparation."
-Write-Host "  3. Open the 'UniSHARP' panel and generate from an image."
+Write-Host "  2. Open the 'UniSHARP' panel."
+Write-Host "  3. Select an image or click Retry to sync dependencies and prepare assets."
+Write-Host "  4. Generate from the selected image."
 Write-Host ""
 Write-Host "Fisheye note: after ./3dgeer/ is cloned, build its rasterizer if needed:"
 Write-Host "  cd .\3dgeer\submodules\geer-rasterizer; python setup.py build_ext --inplace"

@@ -36,8 +36,9 @@ echo "  $plugin_link -> $plugin_root"
 echo
 echo "Next steps:"
 echo "  1. Launch LichtFeld Studio."
-echo "  2. Wait for first-run uv sync and UniSHARP asset preparation."
-echo "  3. Open the 'UniSHARP' panel and generate from an image."
+echo "  2. Open the 'UniSHARP' panel."
+echo "  3. Select an image or click Retry to sync dependencies and prepare assets."
+echo "  4. Generate from the selected image."
 echo
 echo "Fisheye note: after ./3dgeer/ is cloned, build its rasterizer if needed:"
 echo "  cd ./3dgeer/submodules/geer-rasterizer && python setup.py build_ext --inplace"

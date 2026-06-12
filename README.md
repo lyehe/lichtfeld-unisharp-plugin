@@ -42,6 +42,8 @@ python setup.py build_ext --inplace
 ```
 
 Perspective and panorama modes do not require the 3DGEER rasterizer.
+On Windows, building the fisheye rasterizer requires a CUDA-compatible MSVC
+toolchain on `PATH`; `where cl` should find `cl.exe` before running the build.
 
 ### Torch and xFormers policy
 
@@ -77,9 +79,9 @@ The installer creates:
 ~/.lichtfeld/plugins/unisharp_plugin -> this plugin directory
 ```
 
-On first LFS launch, the plugin environment is synced from `pyproject.toml`.
-Runtime assets are prepared after you select an image or click **Retry** in the
-panel:
+On first LFS launch, the plugin environment is synced from the locked project
+environment in `pyproject.toml` and `uv.lock`. Runtime assets are prepared after
+you select an image or click **Retry** in the panel:
 
 ```text
 models/ckpts/pretained_model.pt
@@ -87,6 +89,9 @@ UniK3D/
 3dgeer/
 cache/
 ```
+
+The checkpoint filename is intentionally `pretained_model.pt`; that spelling
+matches the upstream Hugging Face asset.
 
 ## Usage
 
