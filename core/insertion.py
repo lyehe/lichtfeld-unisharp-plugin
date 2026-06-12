@@ -62,6 +62,21 @@ def _add_splat_data(scene, splat_name: str, parent_id: int, sd) -> None:
     )
 
 
+def _add_splat_args(scene, splat_name: str, parent_id: int, args) -> None:
+    scene.add_splat(
+        name=splat_name,
+        means=args.means,
+        sh0=args.sh0,
+        shN=args.shN,
+        scaling=args.scaling,
+        rotation=args.rotation,
+        opacity=args.opacity,
+        sh_degree=args.sh_degree,
+        scene_scale=args.scene_scale,
+        parent=parent_id,
+    )
+
+
 def _notify_scene(scene, *, log) -> None:
     try:
         scene.notify_changed()
@@ -112,14 +127,14 @@ def insert_gaussians(
     if scene is None:
         return None
 
-    parent_id, splat_name = _create_splat_parent(scene, append=append)
-    sd = lfs_splat_adapter.gaussians_to_lfs_splat_data(
+    splat_args = lfs_splat_adapter.gaussians_to_lfs_add_splat_args(
         gaussians,
         lf=lf,
         color_space=color_space,
         scene_scale=scene_scale,
     )
-    _add_splat_data(scene, splat_name, parent_id, sd)
+    parent_id, splat_name = _create_splat_parent(scene, append=append)
+    _add_splat_args(scene, splat_name, parent_id, splat_args)
     _notify_scene(scene, log=_log)
     _log(f"insertion: added '{splat_name}' from in-memory Gaussians.")
     return splat_name

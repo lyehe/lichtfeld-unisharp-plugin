@@ -20,6 +20,8 @@ from .camera import normalize_camera_mode
 
 _INSERT_TIMEOUT_S = 120.0
 _DIRECT_LFS_INSERT_ENV = "UNISHARP_USE_DIRECT_LFS_INSERT"
+_TRUE_VALUES = {"1", "true", "yes", "on"}
+_FALSE_VALUES = {"0", "false", "no", "off"}
 
 
 class JobStage(Enum):
@@ -37,7 +39,21 @@ _RUNNING = {JobStage.PREPARING, JobStage.LOADING_MODEL, JobStage.RUNNING_MODEL, 
 
 
 def _use_direct_lfs_insert() -> bool:
-    return os.environ.get(_DIRECT_LFS_INSERT_ENV, "").strip().lower() in {"1", "true", "yes", "on"}
+    value = os.environ.get(_DIRECT_LFS_INSERT_ENV, "").strip().lower()
+    if value in _FALSE_VALUES:
+        return False
+    if value in _TRUE_VALUES:
+        return True
+    return _lfs_tensor_bridge_available()
+
+
+def _lfs_tensor_bridge_available() -> bool:
+    if lf is None:
+        return False
+    tensor_type = getattr(lf, "Tensor", None)
+    if tensor_type is None:
+        return False
+    return callable(getattr(tensor_type, "from_dlpack", None)) or callable(getattr(tensor_type, "from_numpy", None))
 
 
 @dataclass(frozen=True)

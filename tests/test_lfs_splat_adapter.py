@@ -76,9 +76,7 @@ def test_activated_gaussians_to_lfs_raw_rejects_shape_mismatch():
         lfs_splat_adapter.activated_gaussians_to_lfs_raw(gaussians)
 
 
-def test_gaussians_to_lfs_splat_data_uses_lfs_scene_constructor():
-    seen = {}
-
+def test_gaussians_to_lfs_add_splat_args_uses_lfs_tensor_bridge():
     class FakeTensor:
         @staticmethod
         def from_dlpack(obj):
@@ -88,24 +86,11 @@ def test_gaussians_to_lfs_splat_data_uses_lfs_scene_constructor():
         def from_numpy(arr, copy=True):
             return torch.from_numpy(arr.copy() if copy else arr)
 
-    class FakeSplatData:
-        def __init__(self, means, sh0, shN, scaling, rotation, opacity, sh_degree, scene_scale):
-            seen.update(
-                means=means,
-                sh0=sh0,
-                shN=shN,
-                scaling=scaling,
-                rotation=rotation,
-                opacity=opacity,
-                sh_degree=sh_degree,
-                scene_scale=scene_scale,
-            )
+    fake_lf = SimpleNamespace(Tensor=FakeTensor)
 
-    fake_lf = SimpleNamespace(Tensor=FakeTensor, scene=SimpleNamespace(SplatData=FakeSplatData))
+    args = lfs_splat_adapter.gaussians_to_lfs_add_splat_args(_sample_gaussians(), lf=fake_lf, scene_scale=2.5)
 
-    lfs_splat_adapter.gaussians_to_lfs_splat_data(_sample_gaussians(), lf=fake_lf, scene_scale=2.5)
-
-    assert seen["means"].shape == (2, 3)
-    assert seen["shN"].shape == (2, 0, 3)
-    assert seen["sh_degree"] == 0
-    assert seen["scene_scale"] == 2.5
+    assert args.means.shape == (2, 3)
+    assert args.shN.shape == (2, 0, 3)
+    assert args.sh_degree == 0
+    assert args.scene_scale == 2.5

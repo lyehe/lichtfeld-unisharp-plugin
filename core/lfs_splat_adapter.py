@@ -14,7 +14,7 @@ ColorSpace = Literal["linearRGB", "sRGB"]
 
 @dataclass(frozen=True)
 class LFSSplatTensors:
-    """Raw tensor contract expected by lichtfeld.scene.SplatData."""
+    """Raw tensor contract expected by lichtfeld.scene.Scene.add_splat."""
 
     means: torch.Tensor
     sh0: torch.Tensor
@@ -22,6 +22,20 @@ class LFSSplatTensors:
     scaling: torch.Tensor
     rotation: torch.Tensor
     opacity: torch.Tensor
+    sh_degree: int = 0
+    scene_scale: float = 1.0
+
+
+@dataclass(frozen=True)
+class LFSAddSplatArgs:
+    """LFS tensor arguments ready to pass to scene.add_splat."""
+
+    means: Any
+    sh0: Any
+    shN: Any
+    scaling: Any
+    rotation: Any
+    opacity: Any
     sh_degree: int = 0
     scene_scale: float = 1.0
 
@@ -123,71 +137,34 @@ def torch_to_lfs_tensor(tensor: torch.Tensor, lf: Any | None = None):
         return lf.Tensor.from_numpy(tensor.cpu().numpy(), copy=True)
 
 
-def raw_to_lfs_splat_data(raw: LFSSplatTensors, lf: Any | None = None):
-    """Build lichtfeld.scene.SplatData from already encoded raw tensors."""
+def raw_to_lfs_add_splat_args(raw: LFSSplatTensors, lf: Any | None = None) -> LFSAddSplatArgs:
+    """Convert already encoded raw tensors into LFS Tensor arguments."""
     lf = lf or _import_lfs()
-    return lf.scene.SplatData(
-        torch_to_lfs_tensor(raw.means, lf),
-        torch_to_lfs_tensor(raw.sh0, lf),
-        torch_to_lfs_tensor(raw.shN, lf),
-        torch_to_lfs_tensor(raw.scaling, lf),
-        torch_to_lfs_tensor(raw.rotation, lf),
-        torch_to_lfs_tensor(raw.opacity, lf),
-        raw.sh_degree,
-        raw.scene_scale,
+    return LFSAddSplatArgs(
+        means=torch_to_lfs_tensor(raw.means, lf),
+        sh0=torch_to_lfs_tensor(raw.sh0, lf),
+        shN=torch_to_lfs_tensor(raw.shN, lf),
+        scaling=torch_to_lfs_tensor(raw.scaling, lf),
+        rotation=torch_to_lfs_tensor(raw.rotation, lf),
+        opacity=torch_to_lfs_tensor(raw.opacity, lf),
+        sh_degree=raw.sh_degree,
+        scene_scale=raw.scene_scale,
     )
 
 
-def gaussians_to_lfs_splat_data(
+def gaussians_to_lfs_add_splat_args(
     gaussians: Gaussians3D,
     *,
     lf: Any | None = None,
     color_space: ColorSpace = "linearRGB",
     scene_scale: float = 1.0,
     eps: float = 1e-6,
-):
-    """Convert UniSHARP Gaussians directly into lichtfeld.scene.SplatData."""
+) -> LFSAddSplatArgs:
+    """Convert UniSHARP Gaussians into stable scene.add_splat arguments."""
     raw = activated_gaussians_to_lfs_raw(
         gaussians,
         color_space=color_space,
         scene_scale=scene_scale,
         eps=eps,
     )
-    return raw_to_lfs_splat_data(raw, lf)
-
-
-def render_gaussians(
-    gaussians: Gaussians3D,
-    rotation,
-    translation,
-    width: int,
-    height: int,
-    *,
-    lf: Any | None = None,
-    color_space: ColorSpace = "linearRGB",
-    scene_scale: float = 1.0,
-    fov_degrees: float = 60.0,
-    intrinsics: tuple[float, float, float, float] | None = None,
-    rgba: bool = False,
-    bg_color=None,
-):
-    """Render activated UniSHARP Gaussians through LFS with correct raw encoding."""
-    lf = lf or _import_lfs()
-    splat = gaussians_to_lfs_splat_data(
-        gaussians,
-        lf=lf,
-        color_space=color_space,
-        scene_scale=scene_scale,
-    )
-    return lf.render_splat_data(
-        splat,
-        rotation,
-        translation,
-        int(width),
-        int(height),
-        float(fov_degrees),
-        intrinsics,
-        bool(rgba),
-        bg_color,
-    )
-
+    return raw_to_lfs_add_splat_args(raw, lf)

@@ -9,7 +9,7 @@ Python source and wraps its single-image inference flow in a LichtFeld panel.
 
 - **Universal camera input** - auto-detects perspective, panorama, and fisheye images, with manual overrides.
 - **Optional calibration** - pass a camera JSON, pinhole intrinsics, or Fisheye624 params when available.
-- **Scene insertion** - saves UniSHARP's `gaussians.ply`, loads it with `lf.io.load`, and inserts it as `UniSHARP` or `UniSHARP_01`, `UniSHARP_02`, etc.
+- **Scene insertion** - inserts via LFS `scene.add_splat` when the host tensor bridge is available, while still saving `gaussians.ply` for compatibility and fallback.
 - **Placement controls** - transform gizmo plus typed translate / rotate / scale fields.
 - **Plugin-local assets** - checkpoints, cloned source dependencies, and CUDA caches stay inside this plugin directory.
 - **VRAM release** - the model is unloaded when LFS training starts or when you click **Free VRAM**.
@@ -44,6 +44,10 @@ python setup.py build_ext --inplace
 Perspective and panorama modes do not require the 3DGEER rasterizer.
 On Windows, building the fisheye rasterizer requires a CUDA-compatible MSVC
 toolchain on `PATH`; `where cl` should find `cl.exe` before running the build.
+
+The plugin does not use LFS as an inference rasterizer on current LFS `master`.
+LFS provides scene insertion and viewport rendering, but not a public offscreen
+`render_splat_data` API for arbitrary in-memory splats.
 
 ### Torch and xFormers policy
 
@@ -104,6 +108,12 @@ matches the upstream Hugging Face asset.
 
 The generated output for each run is kept under `cache/jobs/<run>/...`, including
 `gaussians.ply`, upstream metadata, and UniSHARP's preview renders.
+
+By default, the generated Gaussians are inserted directly through
+`scene.add_splat` when LFS exposes a compatible tensor bridge. Set
+`UNISHARP_USE_DIRECT_LFS_INSERT=0` to force the PLY load path, or
+`UNISHARP_USE_DIRECT_LFS_INSERT=1` to force the direct path with PLY fallback on
+failure.
 
 ## Camera Calibration
 
