@@ -1,0 +1,13 @@
+/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+# Root-anchored: only top-level downloaded weights, cloned source deps, and JIT caches are ignored.
+/models/
+/cache/
+/checkpoints/
+/UniK3D/
+/3dgeer/
+.gstack/

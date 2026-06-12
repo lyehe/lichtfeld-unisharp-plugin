@@ -1,0 +1,65 @@
+[project]
+name = "UniSHARP"
+version = "0.1.0"
+description = "Generate and insert 3D Gaussians from one perspective, panorama, or fisheye image using Insta360 UniSHARP."
+requires-python = ">=3.12,<3.13"
+authors = [{ name = "Yehe Liu" }]
+readme = "README.md"
+keywords = ["gaussian-splatting", "view-synthesis", "unisharp", "single-image", "lichtfeld-plugin"]
+
+dependencies = [
+    "torch==2.8.0",
+    "torchvision==0.23.0",
+    "triton>=3.4.0 ; platform_system != 'Windows'",
+    "triton-windows>=3.4 ; platform_system == 'Windows'",
+    "gsplat==1.5.3",
+    "ninja>=1.11.1",
+    "numpy>=2.0.0",
+    "scipy>=1.11.0",
+    "Pillow>=10.2.0",
+    "plyfile>=1.0.3",
+    "huggingface-hub>=0.22.0",
+    "timm>=1.0.0",
+    "safetensors>=0.4.2",
+    "einops>=0.7.0",
+    "protobuf>=4.25.3",
+]
+
+[project.urls]
+Repository = "https://github.com/Insta360-Research-Team/UniSHARP"
+Homepage = "https://github.com/Insta360-Research-Team/UniSHARP"
+Issues = "https://github.com/Insta360-Research-Team/UniSHARP/issues"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.ruff]
+extend-exclude = ["unisharp", "UniK3D", "3dgeer", ".venv", "cache", "models", "checkpoints"]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+markers = ["gpu: requires a CUDA GPU and downloaded UniSHARP checkpoint"]
+
+[tool.lichtfeld]
+hot_reload = false
+plugin_api = ">=1,<2"
+lichtfeld_version = ">=0.5.0"
+required_features = []
+auto_start = false

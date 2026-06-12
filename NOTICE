@@ -1,0 +1,17 @@
+UniSHARP - LichtFeld Studio plugin
+
+This plugin vendors source from Insta360-Research-Team/UniSHARP under ./unisharp/
+and scripts/infer_unisharp.py. The upstream MIT license is included in
+LICENSE-UniSHARP. Refer to the upstream repository for third-party
+acknowledgements:
+
+  https://github.com/Insta360-Research-Team/UniSHARP
+
+The UniSHARP checkpoint is downloaded at runtime from the Hugging Face repository
+Insta360-Research/Unisharp into ./models/ and is not redistributed here.
+
+At runtime, the plugin may clone these source dependencies into plugin-local
+ignored directories:
+
+  UniK3D: https://github.com/lpiccinelli-eth/UniK3D
+  3DGEER: https://github.com/boschresearch/3dgeer
